@@ -1,16 +1,16 @@
 package com.taobao.arthas.core.shell.command.internal;
 
+import java.util.List;
+
 import com.taobao.arthas.core.shell.cli.CliToken;
 import com.taobao.middleware.cli.CLIs;
 import com.taobao.middleware.cli.CommandLine;
 import com.taobao.middleware.cli.Option;
 
-import java.util.List;
-
 /**
  * @author ralf0131 2017-02-23 23:28.
  */
-public class WordCountHandler extends StdoutHandler implements StatisticsFunction  {
+public class WordCountHandler extends StdoutHandler implements StatisticsFunction {
 
     public static final String NAME = "wc";
 
@@ -19,6 +19,10 @@ public class WordCountHandler extends StdoutHandler implements StatisticsFunctio
     private String result = null;
     private volatile int total = 0;
 
+    private WordCountHandler(boolean lineMode) {
+        this.lineMode = lineMode;
+    }
+
     public static StdoutHandler inject(List<CliToken> tokens) {
         List<String> args = StdoutHandler.parseArgs(tokens, NAME);
         CommandLine commandLine = CLIs.create(NAME)
@@ -26,10 +30,6 @@ public class WordCountHandler extends StdoutHandler implements StatisticsFunctio
                 .parse(args);
         Boolean lineMode = commandLine.isFlagEnabled("l");
         return new WordCountHandler(lineMode);
-    }
-
-    private WordCountHandler(boolean lineMode) {
-        this.lineMode = lineMode;
     }
 
     @Override

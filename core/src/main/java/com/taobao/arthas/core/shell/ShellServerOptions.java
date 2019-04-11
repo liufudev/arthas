@@ -1,8 +1,8 @@
 package com.taobao.arthas.core.shell;
 
-import com.taobao.arthas.core.util.ArthasBanner;
-
 import java.lang.instrument.Instrumentation;
+
+import com.taobao.arthas.core.util.ArthasBanner;
 
 /**
  * The configurations options for the shell server.
@@ -19,7 +19,7 @@ public class ShellServerOptions {
     /**
      * Default time, in ms, that a shell session lasts for without being accessed before expiring.
      */
-    public static final long DEFAULT_SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+    public static final long DEFAULT_SESSION_TIMEOUT = 60 * 60 * 1000 * 24; // 30 minutes
 
     /**
      * Default time, in ms, that a server waits for a client to connect
@@ -55,6 +55,7 @@ public class ShellServerOptions {
      * Set the shell welcome message, i.e the message displayed in the user console when he connects to the shell.
      *
      * @param welcomeMessage the welcome message
+     *
      * @return a reference to this, so the API can be used fluently
      */
     public ShellServerOptions setWelcomeMessage(String welcomeMessage) {
@@ -73,6 +74,7 @@ public class ShellServerOptions {
      * Set the session timeout.
      *
      * @param sessionTimeout the new session timeout
+     *
      * @return a reference to this, so the API can be used fluently
      */
     public ShellServerOptions setSessionTimeout(long sessionTimeout) {
@@ -91,6 +93,7 @@ public class ShellServerOptions {
      * Set the repear interval, i.e the period at which session eviction is performed.
      *
      * @param reaperInterval the new repeat interval
+     *
      * @return a reference to this, so the API can be used fluently
      */
     public ShellServerOptions setReaperInterval(long reaperInterval) {
@@ -98,22 +101,22 @@ public class ShellServerOptions {
         return this;
     }
 
+    public int getPid() {
+        return pid;
+    }
+
     public ShellServerOptions setPid(int pid) {
         this.pid = pid;
         return this;
     }
 
+    public Instrumentation getInstrumentation() {
+        return instrumentation;
+    }
+
     public ShellServerOptions setInstrumentation(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
         return this;
-    }
-
-    public int getPid() {
-        return pid;
-    }
-
-    public Instrumentation getInstrumentation() {
-        return instrumentation;
     }
 
     public long getConnectionTimeout() {

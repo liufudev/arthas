@@ -1,5 +1,12 @@
 package com.taobao.arthas.core.command.klass100;
 
+import java.io.File;
+import java.lang.instrument.Instrumentation;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
 import com.taobao.arthas.core.advisor.Enhancer;
 import com.taobao.arthas.core.command.Constants;
 import com.taobao.arthas.core.shell.cli.Completion;
@@ -25,11 +32,6 @@ import com.taobao.text.ui.Element;
 import com.taobao.text.ui.LabelElement;
 import com.taobao.text.ui.TableElement;
 import com.taobao.text.util.RenderUtil;
-
-import java.io.File;
-import java.lang.instrument.Instrumentation;
-import java.util.*;
-import java.util.regex.Pattern;
 
 import static com.taobao.text.ui.Element.label;
 
@@ -104,8 +106,8 @@ public class JadCommand extends AnnotatedCommand {
                 processMatches(process, matchedClasses);
             } else { // matchedClasses size is 1
                 // find inner classes.
-                Set<Class<?>> withInnerClasses = SearchUtils.searchClassOnly(inst,  matchedClasses.iterator().next().getName() + "$*", false, code);
-                if(withInnerClasses.isEmpty()) {
+                Set<Class<?>> withInnerClasses = SearchUtils.searchClassOnly(inst, matchedClasses.iterator().next().getName() + "$*", false, code);
+                if (withInnerClasses.isEmpty()) {
                     withInnerClasses = matchedClasses;
                 }
                 processExactMatch(process, affect, inst, matchedClasses, withInnerClasses);
@@ -143,12 +145,11 @@ public class JadCommand extends AnnotatedCommand {
 
 
             process.write("\n");
-            process.write(RenderUtil.render(new LabelElement("ClassLoader: ").style(Decoration.bold.fg(Color.red)), process.width()));
-            process.write(RenderUtil.render(TypeRenderUtils.drawClassLoader(c), process.width()) + "\n");
-            process.write(RenderUtil.render(new LabelElement("Location: ").style(Decoration.bold.fg(Color.red)), process.width()));
-            process.write(RenderUtil.render(new LabelElement(ClassUtils.getCodeSource(
-                    c.getProtectionDomain().getCodeSource())).style(Decoration.bold.fg(Color.blue)), process.width()) + "\n");
-            process.write(LangRenderUtil.render(source) + "\n");
+            // process.write(RenderUtil.render(new LabelElement("ClassLoader: ").style(Decoration.bold.fg(Color.red)), process.width()));
+            process.write(TypeRenderUtils.drawClassLoader(c) + "\n");
+            // process.write(RenderUtil.render(new LabelElement("Location: ").style(Decoration.bold.fg(Color.red)), process.width()));
+            process.write(ClassUtils.getCodeSource(c.getProtectionDomain().getCodeSource()));
+            process.write(source + "\n");
             process.write(com.taobao.arthas.core.util.Constants.EMPTY_STRING);
             affect.rCnt(classFiles.keySet().size());
         } catch (Throwable t) {

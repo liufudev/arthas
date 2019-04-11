@@ -1,9 +1,5 @@
 package com.taobao.arthas.core.command.klass100;
 
-import com.taobao.arthas.core.util.FileUtils;
-import com.taobao.arthas.core.util.LogUtil;
-import com.taobao.middleware.logger.Logger;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
@@ -13,10 +9,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.taobao.arthas.core.util.FileUtils;
+import com.taobao.arthas.core.util.LogUtil;
+import com.taobao.middleware.logger.Logger;
+
 /**
  * @author beiwei30 on 25/11/2016.
  */
-class ClassDumpTransformer implements ClassFileTransformer {
+public class ClassDumpTransformer implements ClassFileTransformer {
 
     private static final Logger logger = LogUtil.getArthasLogger();
 

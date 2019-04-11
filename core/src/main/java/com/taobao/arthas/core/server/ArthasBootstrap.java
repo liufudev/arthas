@@ -1,7 +1,17 @@
 package com.taobao.arthas.core.server;
 
-import com.taobao.arthas.core.config.Configure;
+import java.io.IOException;
+import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.taobao.arthas.core.command.BuiltinCommandPack;
+import com.taobao.arthas.core.config.Configure;
 import com.taobao.arthas.core.shell.ShellServer;
 import com.taobao.arthas.core.shell.ShellServerOptions;
 import com.taobao.arthas.core.shell.command.CommandResolver;
@@ -13,16 +23,6 @@ import com.taobao.arthas.core.util.Constants;
 import com.taobao.arthas.core.util.LogUtil;
 import com.taobao.arthas.core.util.UserStatUtil;
 import com.taobao.middleware.logger.Logger;
-
-import java.io.IOException;
-import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -65,9 +65,34 @@ public class ArthasBootstrap {
     }
 
     /**
+     * 单例
+     *
+     * @param instrumentation JVM增强
+     *
+     * @return ArthasServer单例
+     */
+    public synchronized static ArthasBootstrap getInstance(int javaPid, Instrumentation instrumentation) {
+        if (arthasBootstrap == null) {
+            arthasBootstrap = new ArthasBootstrap(javaPid, instrumentation);
+        }
+        return arthasBootstrap;
+    }
+
+    /**
+     * @return ArthasServer单例
+     */
+    public static ArthasBootstrap getInstance() {
+        if (arthasBootstrap == null) {
+            throw new IllegalStateException("ArthasBootstrap must be initialized before!");
+        }
+        return arthasBootstrap;
+    }
+
+    /**
      * Bootstrap arthas server
      *
      * @param configure 配置信息
+     *
      * @throws IOException 服务器启动失败
      */
     public void bind(Configure configure) throws Throwable {
@@ -78,11 +103,15 @@ public class ArthasBootstrap {
             throw new IllegalStateException("already bind");
         }
 
+        //  new NettyTcpBootstrap().start(instrumentation);
+
+        // ArthasProBootstrap arthasProBootstrap = new ArthasProBootstrap();
+        // arthasProBootstrap.start(instrumentation);
         try {
             ShellServerOptions options = new ShellServerOptions()
-                            .setInstrumentation(instrumentation)
-                            .setPid(pid)
-                            .setSessionTimeout(configure.getSessionTimeout() * 1000);
+                    .setInstrumentation(instrumentation)
+                    .setPid(pid)
+                    .setSessionTimeout(configure.getSessionTimeout() * 1000);
             shellServer = new ShellServerImpl(options, this);
             BuiltinCommandPack builtinCommands = new BuiltinCommandPack();
             List<CommandResolver> resolvers = new ArrayList<CommandResolver>();
@@ -90,13 +119,13 @@ public class ArthasBootstrap {
             // TODO: discover user provided command resolver
             if (configure.getTelnetPort() > 0) {
                 shellServer.registerTermServer(new TelnetTermServer(configure.getIp(), configure.getTelnetPort(),
-                                options.getConnectionTimeout()));
+                        options.getConnectionTimeout()));
             } else {
                 logger.info("telnet port is {}, skip bind telnet server.", configure.getTelnetPort());
             }
             if (configure.getHttpPort() > 0) {
                 shellServer.registerTermServer(new HttpTermServer(configure.getIp(), configure.getHttpPort(),
-                                options.getConnectionTimeout()));
+                        options.getConnectionTimeout()));
             } else {
                 logger.info("http port is {}, skip bind http server.", configure.getHttpPort());
             }
@@ -104,7 +133,6 @@ public class ArthasBootstrap {
             for (CommandResolver resolver : resolvers) {
                 shellServer.registerCommandResolver(resolver);
             }
-
             shellServer.listen(new BindHandler(isBindRef));
 
             logger.info("as-server listening on network={};telnet={};http={};timeout={};", configure.getIp(),
@@ -112,7 +140,7 @@ public class ArthasBootstrap {
             // 异步回报启动次数
             UserStatUtil.arthasStart();
 
-            logger.info("as-server started in {} ms", System.currentTimeMillis() - start );
+            logger.info("as-server started in {} ms", System.currentTimeMillis() - start);
         } catch (Throwable e) {
             logger.error(null, "Error during bind to port " + configure.getTelnetPort(), e);
             if (shellServer != null) {
@@ -144,28 +172,6 @@ public class ArthasBootstrap {
         logger.info("as-server destroy completed.");
         // see https://github.com/alibaba/arthas/issues/319
         LogUtil.closeResultLogger();
-    }
-
-    /**
-     * 单例
-     *
-     * @param instrumentation JVM增强
-     * @return ArthasServer单例
-     */
-    public synchronized static ArthasBootstrap getInstance(int javaPid, Instrumentation instrumentation) {
-        if (arthasBootstrap == null) {
-            arthasBootstrap = new ArthasBootstrap(javaPid, instrumentation);
-        }
-        return arthasBootstrap;
-    }
-    /**
-     * @return ArthasServer单例
-     */
-    public static ArthasBootstrap getInstance() {
-        if (arthasBootstrap == null) {
-            throw new IllegalStateException("ArthasBootstrap must be initialized before!");
-        }
-        return arthasBootstrap;
     }
 
     public void execute(Runnable command) {

@@ -13,9 +13,9 @@ get_local_maven_project_version()
 CUR_VERSION=$(get_local_maven_project_version)
 
 # arthas's version
-DATE=$(date '+%Y%m%d%H%M%S')
+# DATE=$(date '+%Y%m%d%H%M%S')
 
-ARTHAS_VERSION="${CUR_VERSION}.${DATE}"
+ARTHAS_VERSION="arthas_develop"
 
 echo "${ARTHAS_VERSION}" > $DIR/core/src/main/resources/com/taobao/arthas/core/res/version
 

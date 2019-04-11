@@ -827,7 +827,7 @@ main()
         local arthas_local_version=$(get_local_version)
         ARTHAS_HOME="${ARTHAS_LIB_DIR}/${arthas_local_version}/arthas"
     fi
-
+    ARTHAS_HOME="/Users/liufu/.arthas/lib/arthas_develop/arthas"
     echo "Arthas home: ${ARTHAS_HOME}"
 
     if [ ! -d "${ARTHAS_HOME}" ] ; then

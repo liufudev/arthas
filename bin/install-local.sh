@@ -1,11 +1,12 @@
 #!/bin/bash
 
 # define newset arthas's version
-ARTHAS_VERSION=${project.version}
+ARTHAS_VERSION=666
 
 # define newset arthas lib home
 ARTHAS_LIB_HOME=${HOME}/.arthas/lib/${ARTHAS_VERSION}/arthas
 
+echo $ARTHAS_LIB_HOME
 # exit shell with err_code
 # $1 : err_code
 # $2 : err_msg
